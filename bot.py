@@ -59,10 +59,19 @@ def successful_payment_callback(update, context):
     update.message.reply_text("Оплата прошла успешно!")
 
 
+def error(update, context):
+    """Обработчик ошибок"""
+    logger = logging.getLogger(__name__)
+    logger.error(f'Произошла ошибка: {context.error}')
+
+
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('pay', pay))
 dispatcher.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 dispatcher.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
+
+# Регистрируем обработчик ошибок
+dispatcher.add_error_handler(error)
 
 
 # Запуск бота в отдельном потоке
