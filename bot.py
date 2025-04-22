@@ -36,15 +36,22 @@ def pay(update, context):
     title = "FreedomPay Тест"
     description = "Оплата товара"
     payload = "custom_payload"
-    provider_token = "FREEDOMPAY_PROVIDER_TOKEN"
+    provider_token = "6450350554:LIVE:548841"  # Токен FreedomPay
     currency = "KGS"
     price = 1000  # 10 сомов
 
     prices = [LabeledPrice("Товар", price * 100)]
-    bot.send_invoice(
-        chat_id, title, description, payload,
-        provider_token, currency, prices
-    )
+
+    logging.info(f"Отправка инвойса с параметрами: chat_id={chat_id}, title={title}, price={price}, provider_token={provider_token}")
+    
+    try:
+        bot.send_invoice(
+            chat_id, title, description, payload,
+            provider_token, currency, prices
+        )
+    except Exception as e:
+        logging.error(f"Ошибка при отправке инвойса: {e}")
+        update.message.reply_text(f"Произошла ошибка при отправке инвойса: {e}")
 
 
 def precheckout_callback(update, context):
@@ -59,19 +66,10 @@ def successful_payment_callback(update, context):
     update.message.reply_text("Оплата прошла успешно!")
 
 
-def error(update, context):
-    """Обработчик ошибок"""
-    logger = logging.getLogger(__name__)
-    logger.error(f'Произошла ошибка: {context.error}')
-
-
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('pay', pay))
 dispatcher.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 dispatcher.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
-
-# Регистрируем обработчик ошибок
-dispatcher.add_error_handler(error)
 
 
 # Запуск бота в отдельном потоке
