@@ -5,6 +5,9 @@ from telegram import Bot, Update, LabeledPrice
 from telegram.ext import Dispatcher, CommandHandler, PreCheckoutQueryHandler, MessageHandler, Filters
 import threading
 
+# Устанавливаем уровень логирования
+logging.basicConfig(level=logging.DEBUG)
+
 TOKEN = '7963889304:AAHb-55yJ0y7NvwQqu6I8tIFcIQNCk3pMjQ'
 bot = Bot(token=TOKEN)
 
@@ -13,12 +16,14 @@ app = Flask(__name__)
 # Указываем 1 worker для асинхронных колбеков
 dispatcher = Dispatcher(bot, None, workers=1, use_context=True)
 
+# Логирование информации
 logging.basicConfig(level=logging.INFO)
 
 @app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
     update = Update.de_json(request.get_json(force=True), bot)
     dispatcher.process_update(update)
+    logging.info("Обработан запрос от Telegram: %s", update)  # Логируем запрос от Telegram
     return 'ok'
 
 
@@ -45,10 +50,12 @@ def pay(update, context):
     logging.info(f"Отправка инвойса с параметрами: chat_id={chat_id}, title={title}, price={price}, provider_token={provider_token}")
     
     try:
-        bot.send_invoice(
+        # Логируем фактический запрос
+        response = bot.send_invoice(
             chat_id, title, description, payload,
             provider_token, currency, prices
         )
+        logging.info(f"Ответ на запрос: {response}")  # Логируем ответ от Telegram
     except Exception as e:
         logging.error(f"Ошибка при отправке инвойса: {e}")
         update.message.reply_text(f"Произошла ошибка при отправке инвойса: {e}")
