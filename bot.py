@@ -9,10 +9,11 @@ TOKEN = '7963889304:AAHb-55yJ0y7NvwQqu6I8tIFcIQNCk3pMjQ'
 bot = Bot(token=TOKEN)
 
 app = Flask(__name__)
-dispatcher = Dispatcher(bot, None, workers=0, use_context=True)
+
+# Указываем 1 worker для асинхронных колбеков
+dispatcher = Dispatcher(bot, None, workers=1, use_context=True)
 
 logging.basicConfig(level=logging.INFO)
-
 
 @app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
