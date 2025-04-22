@@ -3,6 +3,7 @@ import requests
 from flask import Flask, request
 from telegram import Bot, Update, LabeledPrice
 from telegram.ext import Dispatcher, CommandHandler, PreCheckoutQueryHandler, MessageHandler, Filters
+import threading
 
 TOKEN = '7963889304:AAHb-55yJ0y7NvwQqu6I8tIFcIQNCk3pMjQ'
 bot = Bot(token=TOKEN)
@@ -61,3 +62,13 @@ dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('pay', pay))
 dispatcher.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 dispatcher.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
+
+
+# Запуск бота в отдельном потоке
+def run_bot():
+    app.run(host='0.0.0.0', port=5000)
+
+
+if __name__ == "__main__":
+    thread = threading.Thread(target=run_bot)
+    thread.start()
